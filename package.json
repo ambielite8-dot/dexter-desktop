@@ -40,13 +40,12 @@
     "win": {
       "target": [
         {
-          "target": "portable",
+          "target": "dir",
           "arch": ["x64"]
         }
       ],
       "signingHashAlgorithms": [],
-      "sign": null,
-      "icon": null
+      "sign": null
     },
     "mac": {
       "target": [
