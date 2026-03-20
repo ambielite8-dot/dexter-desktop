@@ -45,9 +45,7 @@
         }
       ],
       "signingHashAlgorithms": [],
-      "sign": null,
-      "setBuildNumber": false,
-      "buildVersion": "1.0.0"
+      "sign": null
     },
     "mac": {
       "target": [
