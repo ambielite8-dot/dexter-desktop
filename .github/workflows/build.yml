@@ -30,6 +30,10 @@ jobs:
         with:
           workspaces: src-tauri/target
 
+      - name: Install Windows Tauri CLI
+        run: npm install @tauri-apps/cli-win32-x64-msvc
+        shell: bash
+
       - name: Install frontend dependencies
         run: npm ci
 
