@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: '20'
           cache: npm
 
       - name: Install Rust stable
@@ -45,4 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: build
+          tagName: v__VERSION__
+          releaseName: Dexter v__VERSION__
+          releaseDraft: false
+          prerelease: false
