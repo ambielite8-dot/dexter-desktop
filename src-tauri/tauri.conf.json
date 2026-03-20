@@ -4,10 +4,8 @@
   "version": "1.0.0",
   "identifier": "com.dexter.desktop",
   "build": {
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "frontendDist": "../src",
+    "devUrl": "http://localhost:1420"
   },
   "app": {
     "windows": [
@@ -36,9 +34,7 @@
     ],
     "windows": {
       "nsis": {
-        "installMode": "perMachine",
-        "installerIcon": "icons/icon.ico",
-        "headerImage": "icons/128x128.png"
+        "installMode": "perMachine"
       }
     },
     "category": "Utility",

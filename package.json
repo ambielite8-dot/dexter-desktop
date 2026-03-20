@@ -2,17 +2,21 @@
   "name": "dexter-desktop",
   "version": "1.0.0",
   "description": "One Platform. Every Professional. Every Student. Every Goal.",
+  "type": "module",
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",
-    "build:win": "tauri build --target x86_64-pc-windows-msvc",
-    "build:mac": "tauri build --target universal-apple-darwin",
-    "build:linux": "tauri build --target x86_64-unknown-linux-gnu",
-    "tauri": "tauri"
+    "build:win": "tauri build --bundles nsis,msi",
+    "build:mac": "tauri build --bundles dmg,app",
+    "build:linux": "tauri build --bundles appimage,deb"
   },
   "author": "Dexter",
   "license": "MIT",
   "devDependencies": {
     "@tauri-apps/cli": "^2.10.1"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.5.0",
+    "@tauri-apps/plugin-log": "^2.2.0"
   }
 }
