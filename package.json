@@ -44,7 +44,8 @@
           "arch": ["x64"]
         }
       ],
-      "signingHashAlgorithms": [],
+      "signAndEditExecutable": false,
+      "signingHashAlgorithms": null,
       "sign": null
     },
     "mac": {
