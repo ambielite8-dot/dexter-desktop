@@ -8,7 +8,8 @@
     "build": "tauri build",
     "build:win": "tauri build --bundles nsis,msi",
     "build:mac": "tauri build --bundles dmg,app",
-    "build:linux": "tauri build --bundles appimage,deb"
+    "build:linux": "tauri build --bundles appimage,deb",
+    "tauri": "tauri"
   },
   "author": "Dexter",
   "license": "MIT",
