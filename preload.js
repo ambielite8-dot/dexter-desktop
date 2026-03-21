@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('dexter', {
   getSettings: () => ipcRenderer.invoke('get-settings'),
   updateSettings: (settings) => ipcRenderer.send('update-settings', settings),
   sendContext: (data) => ipcRenderer.send('send-context', data),
+  sendChat: (data) => ipcRenderer.send('send-chat', data),
+  sendVoice: (transcript, mode, callback) => ipcRenderer.send('send-voice', transcript, mode, callback),
   
   onBrowserLoading: (callback) => {
     ipcRenderer.on('browser-loading', (event, isLoading) => callback(isLoading));
@@ -21,5 +23,11 @@ contextBridge.exposeInMainWorld('dexter', {
   },
   onRecommendations: (callback) => {
     ipcRenderer.on('recommendations', (event, cards) => callback(cards));
+  },
+  onChatResponse: (callback) => {
+    ipcRenderer.on('chat-response', (event, response) => callback(response));
+  },
+  onVoiceResponse: (callback) => {
+    ipcRenderer.on('voice-response', (event, response) => callback(response));
   }
 });

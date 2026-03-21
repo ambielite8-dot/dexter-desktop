@@ -9,7 +9,7 @@ export default function App() {
   const [mode, setMode] = useState('vybe');
   const [cards, setCards] = useState([]);
   const [sessionInput, setSessionInput] = useState('');
-  const [settings, setSettings] = useState({ backendUrl: 'http://localhost:3001/context' });
+  const [settings, setSettings] = useState({ backendUrl: 'http://localhost:3001' });
   const [permissionLevel, setPermissionLevel] = useState('verify');
 
   useEffect(() => {
@@ -31,23 +31,23 @@ export default function App() {
       window.dexter.onRecommendations((newCards) => {
         setCards(newCards);
       });
+
+      window.dexter.onChatResponse((response) => {
+        console.log('Chat response:', response);
+      });
     }
   }, []);
 
-  const handleSendContext = () => {
-    if (!window.dexter || !sessionInput.trim()) return;
+  const handleSendContext = (message, setChatHistory) => {
+    const modeLabel = mode === 'vybe' ? 'Vybe Mode' : mode === 'partner' ? 'Partner Mode' : 'Professor Mode';
     
-    const data = {
-      url: browserUrl || 'about:blank',
-      title: browserTitle || 'New Tab',
-      mode,
-      sessionId: 'dexter-session-' + Date.now(),
-      timestamp: new Date().toISOString(),
-      message: sessionInput
-    };
-    
-    window.dexter.sendContext(data);
-    setSessionInput('');
+    if (window.dexter) {
+      window.dexter.sendChat({
+        message: message || sessionInput,
+        mode: modeLabel,
+        sessionId: 'dexter-session-' + Date.now()
+      });
+    }
   };
 
   const handleSettingsChange = (newSettings) => {

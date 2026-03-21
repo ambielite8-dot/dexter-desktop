@@ -1,10 +1,12 @@
 const { app, BrowserWindow, ipcMain, WebContentsView, session } = require('electron');
 const path = require('path');
+const https = require('https');
+const http = require('http');
 
 let mainWindow;
 let browserView;
 let settings = {
-  backendUrl: 'http://localhost:3001/context'
+  backendUrl: 'http://localhost:3001'
 };
 
 function createWindow() {
@@ -73,7 +75,29 @@ function createWindow() {
   }, 10000);
 }
 
-function sendContextToBackend() {
+function httpRequest(options, payload) {
+  return new Promise((resolve, reject) => {
+    const protocol = options.hostname.includes('localhost') ? http : https;
+    const req = protocol.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+    req.on('error', reject);
+    if (payload) {
+      req.write(JSON.stringify(payload));
+    }
+    req.end();
+  });
+}
+
+async function sendContextToBackend() {
   if (!browserView || !browserView.webContents) return;
 
   const url = browserView.webContents.getURL();
@@ -84,38 +108,28 @@ function sendContextToBackend() {
   const payload = {
     url,
     title,
-    mode: 'vybe',
+    mode: 'Vybe Mode',
     sessionId: 'dexter-session-' + Date.now(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    urlChanged: true
   };
 
-  const http = require('http');
-  const urlObj = new URL(settings.backendUrl);
-  
-  const req = http.request({
-    hostname: urlObj.hostname,
-    port: urlObj.port,
-    path: urlObj.pathname,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }, (res) => {
-    let data = '';
-    res.on('data', chunk => data += chunk);
-    res.on('end', () => {
-      try {
-        const response = JSON.parse(data);
-        if (response.cards && mainWindow) {
-          mainWindow.webContents.send('recommendations', response.cards);
-        }
-      } catch (e) {}
-    });
-  });
+  try {
+    const urlObj = new URL(settings.backendUrl + '/context');
+    const response = await httpRequest({
+      hostname: urlObj.hostname,
+      port: urlObj.port,
+      path: '/context',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }, payload);
 
-  req.on('error', () => {});
-  req.write(JSON.stringify(payload));
-  req.end();
+    if (response.cards && mainWindow) {
+      mainWindow.webContents.send('recommendations', response.cards);
+    }
+  } catch (e) {
+    console.error('Context request failed:', e.message);
+  }
 }
 
 ipcMain.on('navigate', (event, url) => {
@@ -152,36 +166,79 @@ ipcMain.on('update-settings', (event, newSettings) => {
 });
 
 ipcMain.on('send-context', (event, data) => {
-  const http = require('http');
-  const urlObj = new URL(settings.backendUrl);
-  
-  const req = http.request({
-    hostname: urlObj.hostname,
-    port: urlObj.port,
-    path: urlObj.pathname,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }, (res) => {
-    let responseData = '';
-    res.on('data', chunk => responseData += chunk);
-    res.on('end', () => {
-      try {
-        const response = JSON.parse(responseData);
-        mainWindow.webContents.send('recommendations', response.cards || []);
-      } catch (e) {
-        mainWindow.webContents.send('recommendations', []);
-      }
-    });
-  });
+  const modeMap = { vybe: 'Vybe Mode', partner: 'Partner Mode', professor: 'Professor Mode' };
+  const payload = {
+    ...data,
+    mode: modeMap[data.mode] || data.mode,
+    sessionId: 'dexter-session-' + Date.now(),
+    urlChanged: true
+  };
 
-  req.on('error', () => {
-    mainWindow.webContents.send('recommendations', []);
+  httpRequest({
+    hostname: 'localhost',
+    port: '3001',
+    path: '/context',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }, payload).then(response => {
+    if (mainWindow) {
+      mainWindow.webContents.send('recommendations', response.cards || []);
+    }
+  }).catch(e => {
+    console.error('Send context failed:', e.message);
+    if (mainWindow) {
+      mainWindow.webContents.send('recommendations', []);
+    }
   });
-  
-  req.write(JSON.stringify(data));
-  req.end();
+});
+
+ipcMain.on('send-chat', (event, data) => {
+  const payload = {
+    message: data.message,
+    mode: data.mode || 'Vybe Mode',
+    sessionId: data.sessionId || 'dexter-session-' + Date.now()
+  };
+
+  httpRequest({
+    hostname: 'localhost',
+    port: '3001',
+    path: '/chat',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }, payload).then(response => {
+    if (mainWindow) {
+      mainWindow.webContents.send('chat-response', response);
+    }
+  }).catch(e => {
+    console.error('Send chat failed:', e.message);
+    if (mainWindow) {
+      mainWindow.webContents.send('chat-response', { response: 'Sorry, I could not process that.' });
+    }
+  });
+});
+
+ipcMain.on('send-voice', (event, transcript, mode, callback) => {
+  const payload = {
+    transcript,
+    mode: mode || 'Vybe Mode',
+    sessionId: 'dexter-session-' + Date.now()
+  };
+
+  httpRequest({
+    hostname: 'localhost',
+    port: '3001',
+    path: '/voice',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }, payload).then(response => {
+    if (mainWindow) {
+      mainWindow.webContents.send('voice-response', response);
+    }
+    if (callback) callback(response);
+  }).catch(e => {
+    console.error('Send voice failed:', e.message);
+    if (callback) callback({ response: 'Sorry, I could not process your voice input.' });
+  });
 });
 
 app.whenReady().then(() => {
