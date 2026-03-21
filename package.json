@@ -40,33 +40,47 @@
     "win": {
       "target": [
         {
-          "target": "dir",
-          "arch": ["x64"]
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "signAndEditExecutable": false,
       "signingHashAlgorithms": null,
-      "sign": null
+      "sign": null,
+      "artifactName": "Dexter-Setup-${version}.exe"
     },
     "mac": {
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
-      ]
+      ],
+      "artifactName": "Dexter-${version}-mac.dmg",
+      "gatekeeperAssess": false,
+      "hardenedRuntime": false,
+      "identity": null
     },
     "linux": {
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
-      ]
+      ],
+      "artifactName": "Dexter-${version}.AppImage"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Dexter-Setup-${version}.exe"
     }
   }
 }
