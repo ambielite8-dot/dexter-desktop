@@ -23,6 +23,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install NSIS
+        run: |
+          choco install nsis -y
+          echo "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
+
       - name: Install dependencies
         run: npm install
 
@@ -33,10 +38,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dexter-windows
-          path: dist/
+          path: |
+            dist/*.exe
+            dist/*.zip
+            dist/*.blockmap
+            dist/*.yml
 
   build-mac:
     runs-on: macos-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+      ELECTRON_SKIP_NOTARIZATION: true
     steps:
       - uses: actions/checkout@v4
 
@@ -54,7 +66,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dexter-mac
-          path: dist/
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.blockmap
+            dist/*.yml
 
   build-linux:
     runs-on: ubuntu-latest
@@ -75,4 +91,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dexter-linux
-          path: dist/
+          path: |
+            dist/*.AppImage
+            dist/*.snap
+            dist/*.deb
+            dist/*.rpm
+            dist/*.blockmap
+            dist/*.yml
