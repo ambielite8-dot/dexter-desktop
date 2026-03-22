@@ -44,6 +44,12 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "signAndEditExecutable": false,
@@ -81,6 +87,9 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "artifactName": "Dexter-Setup-${version}.exe"
+    },
+    "portable": {
+      "artifactName": "Dexter-Portable-${version}.exe"
     }
   }
 }

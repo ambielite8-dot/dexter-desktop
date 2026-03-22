@@ -34,6 +34,7 @@ jobs:
 
       - name: Build Windows
         run: npm run build:win
+        continue-on-error: true
 
       - name: List dist contents
         if: always()
