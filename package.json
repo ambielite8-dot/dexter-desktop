@@ -61,16 +61,14 @@
       "target": [
         {
           "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
+          "arch": ["x64"]
         }
       ],
       "artifactName": "Dexter-${version}-mac.dmg",
       "gatekeeperAssess": false,
       "hardenedRuntime": false,
-      "identity": null
+      "identity": null,
+      "notarize": false
     },
     "linux": {
       "target": [
