@@ -27,6 +27,7 @@ jobs:
         run: |
           choco install nsis -y
           echo "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
+        continue-on-error: true
 
       - name: Install dependencies
         run: npm install
@@ -34,15 +35,18 @@ jobs:
       - name: Build Windows
         run: npm run build:win
 
+      - name: List dist contents
+        if: always()
+        run: |
+          echo "Dist folder contents:"
+          dir dist/ 2>nul || echo "No dist folder found"
+
       - name: Upload Windows artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Dexter-windows
-          path: |
-            dist/*.exe
-            dist/*.zip
-            dist/*.blockmap
-            dist/*.yml
+          path: dist/
 
   build-mac:
     runs-on: macos-latest
